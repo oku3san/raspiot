@@ -4,6 +4,7 @@ import (
   "fmt"
   "github.com/quhar/bme280"
   "golang.org/x/exp/io/i2c"
+  "os"
   "time"
 )
 
@@ -12,7 +13,7 @@ func initBme280() (*bme280.BME280, error) {
   dev, err := i2c.Open(&i2c.Devfs{Dev: "/dev/i2c-1"}, 0x76)
 
   if err != nil {
-    fmt.Println("OpenDevice error")
+    fmt.Println(err)
     return nil, err
   }
 
@@ -25,11 +26,25 @@ func initBme280() (*bme280.BME280, error) {
 func outputSensorValues(bme *bme280.BME280) (err error) {
   temperature, pressure, humidity, err := bme.EnvData()
   if err != nil {
-    fmt.Println("EnvData error")
+    fmt.Println(err)
     return
   }
 
-  fmt.Printf("Temperature: %.2fC, Humidity: %.2f%%, Pressure: %.2fhpa, \n", temperature, humidity, pressure)
+  // ファイルへの書き込み
+  file, err := os.OpenFile("test.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+  if err != nil {
+    fmt.Println(err)
+    return
+  }
+  defer file.Close()
+  newLine := fmt.Sprintf("Temperature: %.2fC, Humidity: %.2f%%, Pressure: %.2fhpa", temperature, humidity, pressure)
+  _, err = fmt.Fprintln(file, newLine)
+  if err != nil {
+    fmt.Println(err)
+  }
+
+  // 標準出力
+  fmt.Printf("Temperature: %.2fC, Humidity: %.2f%%, Pressure: %.2fhpa \n", temperature, humidity, pressure)
   return
 }
 
@@ -40,7 +55,7 @@ func main() {
   // BME280 デバイスの初期化
   bme280, err := initBme280()
   if err != nil {
-    fmt.Println("Init error")
+    fmt.Println(err)
     return
   }
 
@@ -57,7 +72,7 @@ func main() {
     case <-ticker.C:
       err = outputSensorValues(bme280)
       if err != nil {
-        fmt.Println("Output error")
+        fmt.Println(err)
         return
       }
     }
