@@ -4,3 +4,10 @@ services:
     build: ./app/
     devices:
       - "/dev/i2c-1:/dev/i2c-1"
+    depends_on:
+      - prometheus
+
+  prometheus:
+    build: ./monitoring/prometheus/
+    ports:
+      - "9090:9090"
