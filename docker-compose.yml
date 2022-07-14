@@ -1,6 +1,8 @@
 version: "3"
+
 services:
   app:
+    container_name: raspiot
     build: ./app/
     devices:
       - "/dev/i2c-1:/dev/i2c-1"
@@ -8,6 +10,21 @@ services:
       - prometheus
 
   prometheus:
+    container_name: prometheus
     build: ./monitoring/prometheus/
     ports:
       - "9090:9090"
+
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    command:
+      - '--path.rootfs=/host'
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
+    ports:
+      - "9100:9100"
+    depends_on:
+      - prometheus
