@@ -6,14 +6,16 @@ services:
     build: ./app/
     devices:
       - "/dev/i2c-1:/dev/i2c-1"
-    depends_on:
-      - prometheus
+    volumes:
+      - './app/data:/tmp'
 
   prometheus:
     container_name: prometheus
     build: ./monitoring/prometheus/
     ports:
       - "9090:9090"
+    volumes:
+      - './monitoring/prometheus/data:/prometheus'
 
   node_exporter:
     image: quay.io/prometheus/node-exporter:latest
