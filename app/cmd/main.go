@@ -31,7 +31,7 @@ func outputSensorValues(bme *bme280.BME280) (err error) {
   }
 
   // ファイルへの書き込み
-  file, err := os.OpenFile("test.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+  file, err := os.OpenFile("/tmp/results.prom", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
   if err != nil {
     fmt.Println(err)
     return
