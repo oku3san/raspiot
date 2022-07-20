@@ -16,17 +16,3 @@ services:
       - "9090:9090"
     volumes:
       - './monitoring/prometheus/data:/prometheus'
-
-  node_exporter:
-    image: quay.io/prometheus/node-exporter:latest
-    container_name: node_exporter
-    command:
-      - '--path.rootfs=/host'
-    pid: host
-    restart: unless-stopped
-    volumes:
-      - '/:/host:ro,rslave'
-    ports:
-      - "9100:9100"
-    depends_on:
-      - prometheus
