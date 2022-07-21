@@ -3,16 +3,16 @@ version: "3"
 services:
   app:
     container_name: raspiot
-    build: ./app/
+    build:
+      context: .
+      dockerfile: ./docker/app/Dockerfile
     devices:
       - "/dev/i2c-1:/dev/i2c-1"
-    volumes:
-      - './app/data:/tmp'
 
   prometheus:
     container_name: prometheus
-    build: ./monitoring/prometheus/
+    build: ./docker/monitoring/prometheus/
     ports:
       - "9090:9090"
     volumes:
-      - './monitoring/prometheus/data:/prometheus'
+      - './docker/monitoring/prometheus/data:/prometheus'
