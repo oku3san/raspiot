@@ -14,4 +14,4 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
-./docker/monitoring/prometheus/data
+./docker/monitoring/prometheus/data/*
