@@ -2,10 +2,30 @@ package main
 
 import (
   "fmt"
+  "github.com/prometheus/client_golang/prometheus"
+  "github.com/prometheus/client_golang/prometheus/promhttp"
   "github.com/quhar/bme280"
   "golang.org/x/exp/io/i2c"
+  "log"
+  "net/http"
   "time"
 )
+
+var (
+  sensorData = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+    Name: "sensor_data_from_raspberry_pi",
+    Help: "Sensor data from raspberry pi",
+  },
+    []string{
+      "key",
+    },
+  )
+)
+
+func init() {
+  // Metrics have to be registered to be exposed:
+  prometheus.MustRegister(sensorData)
+}
 
 // BME280 デバイスの初期化
 func initBme280() (*bme280.BME280, error) {
@@ -31,10 +51,15 @@ func outputSensorValues(bme *bme280.BME280) (err error) {
 
   // 標準出力
   fmt.Printf("Temperature: %.2fC, Humidity: %.2f%%, Pressure: %.2fhpa \n", temperature, humidity, pressure)
+
+  // Node exporter
+  sensorData.With(prometheus.Labels{"key": "Temperature"}).Set(temperature)
+  sensorData.With(prometheus.Labels{"key": "Humidity"}).Set(humidity)
+  sensorData.With(prometheus.Labels{"key": "Pressure"}).Set(pressure)
   return
 }
 
-func main() {
+func setMetrics() {
   // インターバル
   const outputIntervalSec = 60
 
@@ -63,4 +88,12 @@ func main() {
       }
     }
   }
+}
+
+func main() {
+
+  go setMetrics()
+
+  http.Handle("/metrics", promhttp.Handler())
+  log.Fatal(http.ListenAndServe(":8080", nil))
 }
