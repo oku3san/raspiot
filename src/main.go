@@ -4,7 +4,6 @@ import (
   "fmt"
   "github.com/quhar/bme280"
   "golang.org/x/exp/io/i2c"
-  "os"
   "time"
 )
 
@@ -28,19 +27,6 @@ func outputSensorValues(bme *bme280.BME280) (err error) {
   if err != nil {
     fmt.Println(err)
     return
-  }
-
-  // ファイルへの書き込み
-  file, err := os.OpenFile("/tmp/results.prom", os.O_CREATE|os.O_WRONLY, 0644)
-  if err != nil {
-    fmt.Println(err)
-    return
-  }
-  defer file.Close()
-  newLine := fmt.Sprintf("Temperature %.2fC\nHumidity %.2f%%\nPressure %.2fhpa", temperature, humidity, pressure)
-  _, err = fmt.Fprintln(file, newLine)
-  if err != nil {
-    fmt.Println(err)
   }
 
   // 標準出力
