@@ -10,6 +10,7 @@ services:
       - "/dev/i2c-1:/dev/i2c-1"
     ports:
       - "8080:8080"
+    restart: always
 
   prometheus:
     container_name: prometheus
@@ -18,9 +19,11 @@ services:
       - "9090:9090"
     volumes:
       - './docker/monitoring/prometheus/data:/prometheus'
+    restart: always
 
   grafana:
     container_name: grafana
     image: grafana/grafana
     ports:
       - "3000:3000"
+    restart: always
